@@ -157,7 +157,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5.0dip"
                         android:src="@drawable/biz_plugin_weather_0_50"
-                        android:id="@+id/pm2_5_imp" />
+                        android:id="@+id/pm2_5_img" />
                 </LinearLayout>
                 <!--污染等级（重度污染）-->
                 <TextView
@@ -240,10 +240,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
-                    android:paddingRight="12dip"
+                    android:paddingRight="10dip"
                     android:paddingTop="15dip"
                     android:paddingBottom="15dip"
-                    android:paddingLeft="12dip">
+                    android:paddingLeft="10dip">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -261,7 +261,7 @@
                         android:gravity="center"
                         android:text="5℃"
                         android:textColor="@android:color/white"
-                        android:textSize="50sp"
+                        android:textSize="40sp"
                         android:id="@+id/temperature_now" />
                 </LinearLayout>
             </RelativeLayout>
