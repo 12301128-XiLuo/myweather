@@ -6,7 +6,8 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="45.0dip"
-        android:background="#ffcd2626">
+        android:background="#ffcd2626"
+        android:id="@+id/title_bar_city">
 
         <TextView
             android:layout_width="fill_parent"
@@ -34,4 +35,69 @@
             android:background="#A71717"
             android:gravity="center"/>
     </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_city_bar"
+        android:layout_below="@id/title_bar_city">
+
+        <FrameLayout
+
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <EditText
+            android:id="@+id/input_search"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:drawableLeft="@drawable/search_icon"
+            android:drawablePadding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_edittext_shape"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:hint="请输入关键字"/>
+
+        <ImageView
+            android:visibility="gone"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/delete_btn"
+            android:id="@+id/search_delete"
+            android:layout_gravity="right|center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
+
+        <Button
+            android:id="@+id/search_btn"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/btn_search"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
+            android:text="搜索"
+            android:textColor="#fff"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_city_bar">
+
+        <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/city_listView" />
+    </LinearLayout>
 </RelativeLayout>

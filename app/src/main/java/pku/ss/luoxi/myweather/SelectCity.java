@@ -3,33 +3,101 @@ package pku.ss.luoxi.myweather;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import pku.ss.luoxi.app.MyApplication;
+import pku.ss.luoxi.bean.City;
 
 /**
  * Created by admin on 2016/10/18.
  */
 public class SelectCity extends Activity implements View.OnClickListener{
     private ImageView mBackBtn;
+    private ListView cityList;
+    private List<City> mCityList;
+    private EditText mInputSearch;
+    private Button mSearchBtn;
 
+    private List<String> cityData;
+    private Map<String,String> nameCode;
+    private String cityCode;
+    private String inputSearchString = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_city);
-
-        mBackBtn = (ImageView) findViewById(R.id.title_back);
+        //初始化
+        initSelectView();
+        //返回按钮响应事件
         mBackBtn.setOnClickListener(this);
+
+        //根据数据显示ListView
+        cityList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_expandable_list_item_1,getCityData()));
+        //为每一个item添加监听器
+        cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                cityCode = nameCode.get(cityData.get(position));
+            }
+        });
+        //搜索按钮响应事件
+        mSearchBtn.setOnClickListener(this);
+
+    }
+    //初始化控件
+    private void initSelectView(){
+        //返回按钮
+        mBackBtn = (ImageView) findViewById(R.id.title_back);
+        //城市选择list
+        cityList = (ListView) findViewById(R.id.city_listView);
+        //搜索框
+        mInputSearch = (EditText) findViewById(R.id.input_search);
+        //搜索按钮
+        mSearchBtn = (Button) findViewById(R.id.search_btn);
     }
 
+    /*
+    * 获取城市数据
+    */
+    private List<String> getCityData(){
+        cityData = new ArrayList<String>();
+        mCityList = new ArrayList<City>();
+        nameCode = new HashMap<String,String>();
+        mCityList =  MyApplication.getInstance().getCityList();
+        for (City city : mCityList){
+            String cityName = city.getCity();
+            String cityCode = city.getNumber();
+            cityData.add(cityName);
+            nameCode.put(cityName,cityCode);
+        }
+        return cityData;
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.title_back:
                 Intent i = new Intent();
-                i.putExtra("cityCode","101160101");
+                i.putExtra("cityCode",cityCode);
                 setResult(RESULT_OK,i);
                 finish();
                 break;
+            case R.id.search_btn:
+                //获取用户输入的数据
+                inputSearchString = mInputSearch.getText().toString();
+
             default:
                 break;
         }

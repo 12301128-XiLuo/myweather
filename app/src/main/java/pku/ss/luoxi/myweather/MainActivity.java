@@ -69,7 +69,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mCitySelect.setOnClickListener(this);
         initView();
     }
-
+    //初始化页面控件
     void initView(){
         city_name_Tv = (TextView) findViewById(R.id.title_city_name);
         cityTv = (TextView) findViewById(R.id.city);
@@ -98,6 +98,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         temp_now_Tv.setText("N/A");
     }
 
+    //对天气信息进行解析
     private TodayWeather parseXML(String xmldata){
         TodayWeather todayWeather = null;
         int fengxiangCount = 0;
@@ -197,21 +198,26 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     //更新图片
     void updateTodayImg(TodayWeather todayWeather){
-        int pm25 = Integer.parseInt(todayWeather.getPm25());
-        String weather = todayWeather.getType();
-        if(pm25>=0&&pm25<=50){
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
-        }else if(pm25<=100){
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_51_100);
-        }else if(pm25<=150){
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_101_150);
-        }else if(pm25<=200){
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_151_200);
-        }else if(pm25<=300){
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_201_300);
-        }else {
-            pmImg.setImageResource(R.drawable.biz_plugin_weather_greater_300);
+        //对pm进行判断
+        if(todayWeather.getPm25()!=null){
+            int pm25 = Integer.parseInt(todayWeather.getPm25());
+            if(pm25>=0&&pm25<=50){
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_0_50);
+            }else if(pm25<=100){
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_51_100);
+            }else if(pm25<=150){
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_101_150);
+            }else if(pm25<=200){
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_151_200);
+            }else if(pm25<=300){
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_201_300);
+            }else {
+                pmImg.setImageResource(R.drawable.biz_plugin_weather_greater_300);
+            }
         }
+
+        String weather = todayWeather.getType();
+
         switch (weather){
             case "暴雪":
                 weatherImg.setImageResource(R.drawable.biz_plugin_weather_baoxue);
@@ -279,8 +285,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
         cityTv.setText(todayWeather.getCity());
         timeTv.setText(todayWeather.getUpdatetime()+"发布");
         humidityTv.setText("湿度："+todayWeather.getShidu());
-        pmDataTv.setText(todayWeather.getPm25());
-        pmQualityTv.setText(todayWeather.getQuality());
+        if(todayWeather.getPm25()==null){
+            pmDataTv.setText("N/A");
+            Log.d("pm","success");
+        }else{
+            pmDataTv.setText(todayWeather.getPm25());
+        }
+        if(todayWeather.getQuality()==null){
+            pmQualityTv.setText("N/A");
+        }else{
+            pmQualityTv.setText(todayWeather.getQuality());
+        }
+
         weekTv.setText(todayWeather.getDate());
         temperatureTv.setText(todayWeather.getHigh()+"~"+todayWeather.getLow());
         climateTv.setText(todayWeather.getType());
@@ -354,6 +370,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
         }
     }
+    //接收返回的数据
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 1 && resultCode == RESULT_OK) {
             String newCityCode=data.getStringExtra("cityCode");
