@@ -37,7 +37,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private ImageView mCitySelect;
     private TextView cityTv,timeTv,humidityTv,weekTv,pmDataTv,pmQualityTv,temperatureTv,climateTv,windTv,city_name_Tv,temp_now_Tv;
     private ImageView weatherImg,pmImg;
-
+    //更新后的cityCode
+    private String newCityCode = "101010100";
     private Handler mHandler = new Handler(){
         public void handleMessage(android.os.Message msg){
             switch (msg.what){
@@ -305,7 +306,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         updateTodayImg(todayWeather);
         Toast.makeText(MainActivity.this,"更新成功",Toast.LENGTH_SHORT).show();
     }
-
+    //根据cityCode，获取城市天气信息
     private  void queryWeatherCode(String cityCode){
         final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey="+cityCode;
         Log.d("myWeather",address);
@@ -353,13 +354,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
     public void onClick(View v) {
         if(v.getId() == R.id.title_city_manager) {
             Intent i = new Intent(this,SelectCity.class);
+            i.putExtra("cityCode",newCityCode);
             //startActivity(i);
             startActivityForResult(i,1);
         }
         if(v.getId() == R.id.title_update_btn){
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code","101160101");
-            Log.d("myWeather",cityCode);
+            String cityCode = sharedPreferences.getString("main_city_code",newCityCode);
+            Log.d("myWeather1",cityCode);
 
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE) {
                 Log.d("myWeather","网络OK");
@@ -373,7 +375,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     //接收返回的数据
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 1 && resultCode == RESULT_OK) {
-            String newCityCode=data.getStringExtra("cityCode");
+            newCityCode=data.getStringExtra("cityCode");
             Log.d("myWeather","选择的城市代码为"+newCityCode);
 
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE) {
