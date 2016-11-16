@@ -21,6 +21,7 @@
         <activity android:name=".SelectCity">
 
         </activity>
+        <service android:name="pku.ss.luoxi.app.MyService"/>
     </application>
 
 </manifest>

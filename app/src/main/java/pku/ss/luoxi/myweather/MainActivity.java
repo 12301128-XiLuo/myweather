@@ -1,7 +1,10 @@
 package pku.ss.luoxi.myweather;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import pku.ss.luoxi.app.MyService;
 import pku.ss.luoxi.bean.TodayWeather;
 import pku.ss.luoxi.util.NetUtil;
 
@@ -35,8 +39,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private static final int UPDATE_TODAY_WEATHER = 1;
     private ImageView mUpdateBtn;
     private ImageView mCitySelect;
-    private TextView cityTv,timeTv,humidityTv,weekTv,pmDataTv,pmQualityTv,temperatureTv,climateTv,windTv,city_name_Tv,temp_now_Tv;
+    private TextView cityTv,timeTv,humidityTv,weekTv,pmDataTv,pmQualityTv,temperatureTv,climateTv,windTv,city_name_Tv,temp_now_Tv,textView;
     private ImageView weatherImg,pmImg;
+    public static final String ACTION_SERVICE_UPDATE = "action.serviceUpdate";
+    private UpdateBroadcastReceiver broadcastReceiver;
     //更新后的cityCode
     private String newCityCode = "101010100";
     private Handler mHandler = new Handler(){
@@ -69,6 +75,34 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mCitySelect = (ImageView) findViewById(R.id.title_city_manager);
         mCitySelect.setOnClickListener(this);
         initView();
+
+        //注册广播
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_SERVICE_UPDATE);
+        broadcastReceiver = new UpdateBroadcastReceiver();
+        registerReceiver(broadcastReceiver, filter);
+
+        // 启动服务
+        startService(new Intent(this,MyService.class));
+
+    }
+
+    //定义广播接收器
+    private class UpdateBroadcastReceiver extends BroadcastReceiver {
+         @Override
+        public void onReceive(Context context, Intent intent) {
+             Log.d("MyApp:","定时更新");
+            queryWeatherCode(newCityCode);
+             //textView.setText(String.valueOf(intent.getExtras().getInt("count")));
+        }
+
+    }
+    //停止服务
+    @Override
+    protected void onDestroy() {
+        stopService(new Intent(MainActivity.this, MyService.class));//停止更新时间服务
+        unregisterReceiver(broadcastReceiver);
+        super.onDestroy();
     }
     //初始化页面控件
     void initView(){
@@ -97,6 +131,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         windTv.setText("N/A");
         city_name_Tv.setText("N/A");
         temp_now_Tv.setText("N/A");
+        textView = (TextView) findViewById(R.id.textView);
     }
 
     //对天气信息进行解析
@@ -350,6 +385,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
         }).start();
     }
+
+    //点击事件
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.title_city_manager) {
