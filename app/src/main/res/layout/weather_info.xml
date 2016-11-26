@@ -41,8 +41,17 @@
             android:layout_height="45.0dip"
             android:layout_alignParentRight="true"
             android:layout_gravity="center"
+            android:visibility="visible"
             android:src="@drawable/title_update"
             android:id="@+id/title_update_btn" />
+        <ProgressBar
+            android:id="@+id/title_update_progress"
+            android:layout_width="45.0dip"
+            android:layout_height="45.0dip"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            style="@style/title_update_progressbar_style"/>
 
         <ImageView
             android:layout_width="45.0dip"
@@ -190,7 +199,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="5dip"
                     android:layout_toRightOf="@id/weather_img"
                     android:singleLine="true"
                     android:textColor="@android:color/white"
@@ -202,19 +210,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/week_today"
-                    android:layout_marginLeft="5dip"
                     android:layout_toRightOf="@id/weather_img"
                     android:singleLine="true"
                     android:text="-2℃~7℃"
                     android:textColor="@android:color/white"
-                    android:textSize="30.0sp"
+                    android:textSize="25.0sp"
                     android:id="@+id/temperature" />
                 <!--天气状况-->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/temperature"
-                    android:layout_marginLeft="5dip"
                     android:layout_toRightOf="@id/weather_img"
                     android:singleLine="true"
                     android:text="多云转晴"
@@ -226,7 +232,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/climate"
-                    android:layout_marginLeft="5dip"
                     android:layout_toRightOf="@id/weather_img"
                     android:singleLine="true"
                     android:text="微风"
@@ -261,17 +266,12 @@
                         android:gravity="center"
                         android:text="5℃"
                         android:textColor="@android:color/white"
-                        android:textSize="40sp"
+                        android:textSize="30sp"
                         android:id="@+id/temperature_now" />
                 </LinearLayout>
             </RelativeLayout>
         </RelativeLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/textView" />
     </LinearLayout>
 
 </RelativeLayout>

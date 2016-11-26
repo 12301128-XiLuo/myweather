@@ -12,6 +12,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private static final int UPDATE_TODAY_WEATHER = 1;
     private ImageView mUpdateBtn;
     private ImageView mCitySelect;
+    private ProgressBar mTitleUpdateProgress;
     private TextView cityTv,timeTv,humidityTv,weekTv,pmDataTv,pmQualityTv,temperatureTv,climateTv,windTv,city_name_Tv,temp_now_Tv,textView;
     private ImageView weatherImg,pmImg;
     public static final String ACTION_SERVICE_UPDATE = "action.serviceUpdate";
@@ -60,7 +62,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
-
+        mTitleUpdateProgress = (ProgressBar) findViewById(R.id.title_update_progress);
         mUpdateBtn = (ImageView) findViewById(R.id.title_update_btn);
         mUpdateBtn.setOnClickListener(this);
 
@@ -131,7 +133,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         windTv.setText("N/A");
         city_name_Tv.setText("N/A");
         temp_now_Tv.setText("N/A");
-        textView = (TextView) findViewById(R.id.textView);
+        //textView = (TextView) findViewById(R.id.textView);
     }
 
     //对天气信息进行解析
@@ -339,6 +341,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         windTv.setText("风力:"+todayWeather.getFengli());
         temp_now_Tv.setText(todayWeather.getWendu()+"℃");
         updateTodayImg(todayWeather);
+        //更新完成显示
+        mUpdateBtn.setVisibility(View.VISIBLE);
+        mTitleUpdateProgress.setVisibility(View.INVISIBLE);
         Toast.makeText(MainActivity.this,"更新成功",Toast.LENGTH_SHORT).show();
     }
     //根据cityCode，获取城市天气信息
@@ -362,13 +367,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     String str;
                     while ((str=reader.readLine()) != null){
                         response.append(str);
-                        Log.d("myWeather",str);
+                        //Log.d("myWeather",str);
                     }
                     String responseStr = response.toString();
-                    Log.d("myWeather",responseStr);
+                    //Log.d("myWeather",responseStr);
                     todayWeather = parseXML(responseStr);
                     if(todayWeather != null){
-                        Log.d("myWeather",todayWeather.toString());
+                        //Log.d("myWeather",todayWeather.toString());
 
                         Message msg = new Message();
                         msg.what = UPDATE_TODAY_WEATHER;
@@ -396,6 +401,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
             startActivityForResult(i,1);
         }
         if(v.getId() == R.id.title_update_btn){
+            //将刷新按钮设为不可见;
+            mTitleUpdateProgress.setVisibility(View.VISIBLE);
+            mUpdateBtn.setVisibility(View.INVISIBLE);
             SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
             String cityCode = sharedPreferences.getString("main_city_code",newCityCode);
             Log.d("myWeather1",cityCode);

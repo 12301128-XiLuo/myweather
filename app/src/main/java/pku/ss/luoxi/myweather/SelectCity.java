@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ public class SelectCity extends Activity implements View.OnClickListener{
     private Map<String,String> nameCode;
     private String cityCode;
     private String inputSearchString = "";
+    private TextWatcher mTextWatcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +50,10 @@ public class SelectCity extends Activity implements View.OnClickListener{
         //返回按钮响应事件
         mBackBtn.setOnClickListener(this);
         //城市列表处理事件
-        listViewEvent();
-        //搜索按钮响应事件
-        mSearchBtn.setOnClickListener(this);
+        listViewEvent("");
+        editTextWatcher();
+        //输入框监听事件
+        mInputSearch.addTextChangedListener(mTextWatcher);
 
     }
     //初始化控件及数据
@@ -60,7 +65,7 @@ public class SelectCity extends Activity implements View.OnClickListener{
         //搜索框
         mInputSearch = (EditText) findViewById(R.id.input_search);
         //搜索按钮
-        mSearchBtn = (Button) findViewById(R.id.search_btn);
+        //mSearchBtn = (Button) findViewById(R.id.search_btn);
         //获取初始的cityCode
         Intent intent = getIntent();
         if ( null != intent )
@@ -69,12 +74,44 @@ public class SelectCity extends Activity implements View.OnClickListener{
         }
     }
 
+    private void editTextWatcher(){
+        mTextWatcher= new TextWatcher() {
+            private CharSequence temp;
+            private int editStart;
+            private int editEnd;
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                temp = charSequence;
+                Log.d("myapp","beforeTextChanged:"+temp) ;
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                //mInputSearch.setText(charSequence);
+                listViewEvent(charSequence.toString());
+                Log.d("myapp","onTextChanged:"+charSequence) ;
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                editStart= mInputSearch.getSelectionStart();
+                editEnd= mInputSearch.getSelectionEnd();
+                if (temp.length() > 10) {
+                    Toast.makeText(SelectCity.this,"你输⼊的字数已经超过了限制！", Toast.LENGTH_SHORT)
+                            .show();
+                    editable.delete(editStart-1, editEnd);
+                    int tempSelection= editStart;
+                    mInputSearch.setText(editable);
+                    mInputSearch.setSelection(tempSelection);
+                }
+                Log.d("myapp","afterTextChanged:") ;
+            }
+        };
+    }
     /*
     * 城市列表处理事件
     */
-    private void listViewEvent(){
+    private void listViewEvent(String charSequence){
         //根据数据显示ListView
-        cityList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_expandable_list_item_1,getCityData()));
+        cityList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_expandable_list_item_1,getCityData(charSequence)));
         //为每一个item添加监听器
         cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -92,12 +129,12 @@ public class SelectCity extends Activity implements View.OnClickListener{
     /*
     * 获取城市数据
     */
-    private List<String> getCityData(){
+    private List<String> getCityData(String charSequence){
         cityData = new ArrayList<String>();
         nameCode = new HashMap<String,String>();
         mCityList = new ArrayList<City>();
         mCityList =  MyApplication.getInstance().getCityList();
-        if(inputSearchString.isEmpty()){
+        if(charSequence.isEmpty()){
             Log.d("TAG","NULL");
             for (City city : mCityList){
                 String cityName = city.getCity();
@@ -106,11 +143,11 @@ public class SelectCity extends Activity implements View.OnClickListener{
                 nameCode.put(cityName,cityCode);
             }
         }else{
-            Log.d("TAG",inputSearchString);
+            Log.d("TAG",charSequence);
             for (City city : mCityList){
                 String cityName = city.getCity();
                 String cityCode = city.getNumber();
-                if(cityName.equals(inputSearchString)){
+                if(cityName.contains(charSequence)){
                     cityData.add(cityName);
                     nameCode.put(cityName,cityCode);
                 }
@@ -130,11 +167,10 @@ public class SelectCity extends Activity implements View.OnClickListener{
                 setResult(RESULT_OK,i);
                 finish();
                 break;
-            case R.id.search_btn:
-                //获取用户输入的数据
-                inputSearchString = mInputSearch.getText().toString();
-                //inputSearchString = "南昌";
-                listViewEvent();
+//            case R.id.search_btn:
+//                //获取用户输入的数据
+//                inputSearchString = mInputSearch.getText().toString();
+//                listViewEvent();
             default:
                 break;
         }
