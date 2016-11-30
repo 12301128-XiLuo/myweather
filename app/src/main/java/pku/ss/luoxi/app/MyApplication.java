@@ -27,7 +27,7 @@ public class MyApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG,"MyAppication->Oncreate");
+        //Log.d(TAG,"MyAppication->Oncreate");
         myApplication = this;
         mCityDB = openCityDB();
         initCityList();
@@ -51,9 +51,9 @@ public class MyApplication extends Application{
             i++;
             String cityName = city.getCity();
             String cityCode = city.getNumber();
-            Log.d(TAG,cityCode+":"+cityName);
+            //Log.d(TAG,cityCode+":"+cityName);
         }
-        Log.d(TAG,"i="+i);
+        //Log.d(TAG,"i="+i);
         return true;
     }
 
@@ -72,7 +72,7 @@ public class MyApplication extends Application{
                 + File.separator
                 + CityDB.CITY_DB_NAME;
         File db = new File(path);
-        Log.d(TAG,path);
+        //Log.d(TAG,path);
         if (!db.exists()) {
             String pathfolder = "/data"
                     + Environment.getDataDirectory().getAbsolutePath()

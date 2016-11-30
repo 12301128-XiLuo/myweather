@@ -272,6 +272,39 @@
             </RelativeLayout>
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/weather_after"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+            <android.support.v4.view.ViewPager
+                android:id="@+id/main_viewpager"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/indicator"
+                android:layout_alignParentBottom="true"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:src="@drawable/page_indicator_focused_red"
+                    android:id="@+id/iv4" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:src="@drawable/page_indicator_unfocused_red"
+                    android:id="@+id/iv5" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
     </LinearLayout>
 
 </RelativeLayout>
