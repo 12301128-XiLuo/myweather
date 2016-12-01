@@ -45,6 +45,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public static final String ACTION_SERVICE_UPDATE = "action.serviceUpdate";
     private UpdateBroadcastReceiver broadcastReceiver;
 
+    private SharedPreferences sharedPreferences;
     private NewFragmentPageAdapter nfpAdapter;
     private ViewPager vp;
     private List<Fragment> fragments;
@@ -75,6 +76,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
+        //sharedPreferences判断加初始化
+        initSharedPreference();
 
         mTitleUpdateProgress = (ProgressBar) findViewById(R.id.title_update_progress);
         mUpdateBtn = (ImageView) findViewById(R.id.title_update_btn);
@@ -102,6 +105,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         startService(new Intent(this,MyService.class));
     }
 
+    //sharedPreferences判断加初始化
+    private void initSharedPreference(){
+        //记住上次退出应用之前选择的城市
+        sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+        String cityCode = sharedPreferences.getString("main_city_code","");
+        Log.d("test1",cityCode);
+        if(!cityCode.isEmpty()){
+            newCityCode = cityCode;
+        }
+    }
     //定义广播接收器
     private class UpdateBroadcastReceiver extends BroadcastReceiver {
          @Override
@@ -415,7 +428,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             //将刷新按钮设为不可见;
             mTitleUpdateProgress.setVisibility(View.VISIBLE);
             mUpdateBtn.setVisibility(View.INVISIBLE);
-            SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+            sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
             String cityCode = sharedPreferences.getString("main_city_code",newCityCode);
             Log.d("myWeather1",cityCode);
 
@@ -432,6 +445,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 1 && resultCode == RESULT_OK) {
             newCityCode=data.getStringExtra("cityCode");
+
+            sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("main_city_code",newCityCode);
+            editor.commit();
+
             Log.d("myWeather","选择的城市代码为"+newCityCode);
 
             if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE) {

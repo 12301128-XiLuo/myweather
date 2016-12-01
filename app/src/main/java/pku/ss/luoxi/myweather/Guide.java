@@ -2,6 +2,7 @@ package pku.ss.luoxi.myweather;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ public class Guide extends Activity implements ViewPager.OnPageChangeListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guide);
+        initSharedPreferences();
         initViews();
         initDots();
         btn = (Button) views.get(2).findViewById(R.id.button);
@@ -61,6 +63,21 @@ public class Guide extends Activity implements ViewPager.OnPageChangeListener{
         vp.setOnPageChangeListener(this);
     }
 
+    private void initSharedPreferences(){
+        SharedPreferences sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+
+        String judge = sharedPreferences.getString("guide_judge","");
+        if(judge.isEmpty()){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("guide_judge","true");
+            editor.commit();
+        }else {
+            Intent i = new Intent(Guide.this,MainActivity.class);
+            startActivity(i);
+            finish();
+        }
+
+    }
     //重写导航换页事件监听
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
