@@ -46,13 +46,13 @@ public class MyApplication extends Application{
 
     private boolean prepareCityList() {
         mCityList = mCityDB.getAllCity();
-        int i=0;
-        for (City city : mCityList){
-            i++;
-            String cityName = city.getCity();
-            String cityCode = city.getNumber();
-            //Log.d(TAG,cityCode+":"+cityName);
-        }
+//        int i=0;
+//        for (City city : mCityList){
+//            i++;
+//            String cityName = city.getCity();
+//            String cityCode = city.getNumber();
+//            //Log.d(TAG,cityCode+":"+city.getAllPY()+":"+city.getAllFirstPY()+":"+city.getFirstPY()+":"+city.getNumber());
+//        }
         //Log.d(TAG,"i="+i);
         return true;
     }

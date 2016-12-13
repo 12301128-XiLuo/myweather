@@ -1,6 +1,7 @@
 package pku.ss.luoxi.myweather;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -40,11 +43,14 @@ public class SelectCity extends Activity implements View.OnClickListener{
     private String cityCode;
     private String inputSearchString = "";
     private TextWatcher mTextWatcher;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_city);
+
+        mContext = getApplicationContext();
         //初始化
         initSelectView();
         //返回按钮响应事件
@@ -117,6 +123,10 @@ public class SelectCity extends Activity implements View.OnClickListener{
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 cityCode = nameCode.get(cityData.get(position));
+                //统计搜索最多的城市代码
+                HashMap<String,String> map = new HashMap<String,String>();
+                map.put("cityCode",cityCode);
+                MobclickAgent.onEvent(mContext, "cityCode", map);
                 //传递数据给MainActivity
                 Intent i = new Intent();
                 i.putExtra("cityCode",cityCode);
@@ -147,15 +157,20 @@ public class SelectCity extends Activity implements View.OnClickListener{
             for (City city : mCityList){
                 String cityName = city.getCity();
                 String cityCode = city.getNumber();
+                String allPY = city.getAllPY();
+                String allFirstPY = city.getAllFirstPY();
                 if(cityName.contains(charSequence)){
                     cityData.add(cityName);
                     nameCode.put(cityName,cityCode);
+                }else if(allPY.contains(charSequence.toUpperCase())){
+                    cityData.add(cityName);
+                    nameCode.put(cityName,cityCode);
+                }else if(allFirstPY.contains(charSequence.toUpperCase())){
+                    cityData.add(cityName);
+                    nameCode.put(cityName,cityCode);
                 }
-
             }
         }
-
-
         return cityData;
     }
     @Override
@@ -174,5 +189,14 @@ public class SelectCity extends Activity implements View.OnClickListener{
             default:
                 break;
         }
+    }
+
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

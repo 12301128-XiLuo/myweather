@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.umeng.analytics.MobclickAgent;
+
 import java.util.List;
 
 import pku.ss.luoxi.bean.FutureWeather;
@@ -161,5 +163,14 @@ public class MyFragment extends Fragment {
 
         //System.out.println(getArguments().getSerializable("list"));
         return view;
+    }
+
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("MyFragment"); //统计页面，"MyFragment"为页面名称，可自定义
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("MyFragment");
     }
 }

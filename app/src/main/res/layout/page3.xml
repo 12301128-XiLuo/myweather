@@ -17,7 +17,7 @@
             android:text="开始体验"
             android:textSize="19sp"
             android:background="@drawable/ready_button"
-            android:style="@style/ButtonText"
+            style="@style/ButtonText"
             android:id="@+id/button" />
     </LinearLayout>
 </RelativeLayout>

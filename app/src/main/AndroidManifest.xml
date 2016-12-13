@@ -54,6 +54,9 @@
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="QeBCHoqidsAPnWKGGaZ9tp9oH40Gdbax" />
+        <meta-data android:value="584fd4b0a3251113e500008a" android:name="UMENG_APPKEY"/>
+        <meta-data android:value="Jinli" android:name="UMENG_CHANNEL"/>
+
     </application>
 
 </manifest>

@@ -1,10 +1,13 @@
 package pku.ss.luoxi.myweather;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,7 +24,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +48,8 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.BDNotifyListener;//假如用到位置提醒功能，需要import该类
 import com.baidu.location.Poi;
+import com.umeng.analytics.MobclickAgent;
+
 /**
  * Created by admin on 2016/9/20.
  */
@@ -89,6 +100,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
+
+        MobclickAgent.setDebugMode( true );
 
         mLocationClient = new LocationClient(getApplicationContext());     //声明LocationClient类
         mLocationClient.registerLocationListener( myListener );    //注册监听函数
@@ -527,12 +540,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.title_city_manager) {
+            //统计点击获取城市列表次数
+            MobclickAgent.onEvent(getApplicationContext(),"list");
             Intent i = new Intent(this,SelectCity.class);
             i.putExtra("cityCode",newCityCode);
             //startActivity(i);
             startActivityForResult(i,1);
         }
         if(v.getId() == R.id.title_update_btn){
+            //统计点击刷新按钮次数
+            MobclickAgent.onEvent(getApplicationContext(),"update");
             //将刷新按钮设为不可见;
             mTitleUpdateProgress.setVisibility(View.VISIBLE);
             mUpdateBtn.setVisibility(View.INVISIBLE);
@@ -549,8 +566,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
         }
         if(v.getId() == R.id.title_location) {
+            //统计点击定位按钮次数
+            MobclickAgent.onEvent(getApplicationContext(),"location");
             mLocationClient.start();
-            ;
         }
     }
     //接收返回的数据
@@ -573,5 +591,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 Toast.makeText(MainActivity.this,"网络挂了！",Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }
