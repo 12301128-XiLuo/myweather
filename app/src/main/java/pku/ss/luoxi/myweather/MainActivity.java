@@ -24,15 +24,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.onekeyshare.OnekeyShare;
 import pku.ss.luoxi.app.MyApplication;
 import pku.ss.luoxi.app.MyFragment;
 import pku.ss.luoxi.app.MyService;
@@ -59,7 +57,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private static final int UPDATE_TODAY_WEATHER = 1;
     private static final int UPDATE_FUTURE_WEATHER = 2;
-    private ImageView mUpdateBtn,mLocationBtn;
+    private ImageView mUpdateBtn,mLocationBtn,mShareBtn;
     private ImageView mCitySelect;
     private ProgressBar mTitleUpdateProgress;
     private TextView cityTv,timeTv,humidityTv,weekTv,pmDataTv,pmQualityTv,temperatureTv,climateTv,windTv,city_name_Tv,temp_now_Tv,textView;
@@ -71,10 +69,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private NewFragmentPageAdapter nfpAdapter;
     private ViewPager vp;
     private List<Fragment> fragments;
-//    private ViewPagerAdapter vpAdapter;
-//    private ViewPager vp;
-//    private List<View> views;
 
+    private String shareText = "";
     private ImageView[] dots;
     private int[] ids = {R.id.iv4,R.id.iv5};
 
@@ -101,7 +97,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
 
+        //集成调试
         MobclickAgent.setDebugMode( true );
+        //分享
+        ShareSDK.initSDK(this);
+        mShareBtn = (ImageView) findViewById(R.id.title_share);
+        mShareBtn.setOnClickListener(this);
 
         mLocationClient = new LocationClient(getApplicationContext());     //声明LocationClient类
         mLocationClient.registerLocationListener( myListener );    //注册监听函数
@@ -215,8 +216,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
         }
 
-        //Log.d("Test",listOne.toString());
-        //Log.d("Test",listTwo.toString());
+        Log.d("Test",listOne.toString());
+        Log.d("Test",listTwo.toString());
         vp = (ViewPager) findViewById(R.id.main_viewpager);
         for (int i=0;i<2;i++){
             Bundle bundle=new Bundle();
@@ -282,6 +283,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 listTwo.add(list.get(i));
             }
         }
+
         fragments.clear();
         for (int i=0;i<2;i++){
             Bundle bundle=new Bundle();
@@ -410,6 +412,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //更新完成显示
         mUpdateBtn.setVisibility(View.VISIBLE);
         mTitleUpdateProgress.setVisibility(View.INVISIBLE);
+
+        shareText = "当前"+todayWeather.getCity()+"气温"+todayWeather.getWendu()+"℃"+"，最高气温"+todayWeather.getHigh()+"，最低气温"+todayWeather.getLow()+"，风力:"+todayWeather.getFengli();
         Toast.makeText(MainActivity.this,"更新成功",Toast.LENGTH_SHORT).show();
     }
     //根据cityCode，获取城市天气信息
@@ -570,6 +574,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             MobclickAgent.onEvent(getApplicationContext(),"location");
             mLocationClient.start();
         }
+        if(v.getId() == R.id.title_share) {
+            //统计点击定位按钮次数
+            MobclickAgent.onEvent(getApplicationContext(),"share");
+            showShare();
+        }
     }
     //接收返回的数据
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -593,6 +602,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
+    //收集数据
     public void onResume() {
         super.onResume();
         MobclickAgent.onResume(this);
@@ -600,5 +610,37 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public void onPause() {
         super.onPause();
         MobclickAgent.onPause(this);
+    }
+
+    private void showShare() {
+        OnekeyShare oks = new OnekeyShare();
+        //关闭sso授权
+        oks.disableSSOWhenAuthorize();
+        // title标题，印象笔记、邮箱、信息、微信、人人网、QQ和QQ空间使用
+        oks.setTitle("锦鲤天气");
+        // titleUrl是标题的网络链接，仅在Linked-in,QQ和QQ空间使用
+        oks.setTitleUrl("http://pku.xixi.kkxixi.com");
+        // text是分享文本，所有平台都需要这个字段
+        if(shareText.isEmpty()){
+            oks.setText("我在锦鲤天气");
+        }else{
+            oks.setText(shareText);
+        }
+
+        //分享网络图片，新浪微博分享网络图片需要通过审核后申请高级写入接口，否则请注释掉测试新浪微博
+        //oks.setImageUrl("http://f1.sharesdk.cn/imgs/2014/02/26/owWpLZo_638x960.jpg");
+        // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
+        //oks.setImagePath("/sdcard/test.jpg");//确保SDcard下面存在此张图片
+        // url仅在微信（包括好友和朋友圈）中使用
+        oks.setUrl("http://pku.xixi.kkxixi.com");
+        // comment是我对这条分享的评论，仅在人人网和QQ空间使用
+        oks.setComment("我在锦鲤天气");
+        // site是分享此内容的网站名称，仅在QQ空间使用
+        oks.setSite("锦鲤天气");
+        // siteUrl是分享此内容的网站地址，仅在QQ空间使用
+        oks.setSiteUrl("http://pku.xixi.kkxixi.com");
+
+// 启动分享GUI
+        oks.show(this);
     }
 }

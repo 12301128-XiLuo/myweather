@@ -141,24 +141,29 @@ public class MyFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_my_fragment, container, false);
         initView(view);
         List<FutureWeather> list = (List<FutureWeather>) getArguments().getSerializable("list");
+        Log.i("Test",list.toString());
         if(!list.isEmpty()){
             weekTv.setText(list.get(0).getDate());
             temperatureTv.setText(list.get(0).getWendu());
             climateTv.setText(list.get(0).getType());
             windTv.setText(list.get(0).getFengli());
             weatherJudge(list.get(0).getType(),weatherImg);
+            if(list.size()>=2){
+                weekTv1.setText(list.get(1).getDate());
+                temperatureTv1.setText(list.get(1).getWendu());
+                climateTv1.setText(list.get(1).getType());
+                windTv1.setText(list.get(1).getFengli());
+                weatherJudge(list.get(1).getType(),weatherImg1);
+            }
+            if(list.size()>=3){
+                weekTv2.setText(list.get(2).getDate());
+                temperatureTv2.setText(list.get(2).getWendu());
+                climateTv2.setText(list.get(2).getType());
+                windTv2.setText(list.get(2).getFengli());
+                weatherJudge(list.get(2).getType(),weatherImg2);
+            }
 
-            weekTv1.setText(list.get(1).getDate());
-            temperatureTv1.setText(list.get(1).getWendu());
-            climateTv1.setText(list.get(1).getType());
-            windTv1.setText(list.get(1).getFengli());
-            weatherJudge(list.get(1).getType(),weatherImg1);
 
-            weekTv2.setText(list.get(2).getDate());
-            temperatureTv2.setText(list.get(2).getWendu());
-            climateTv2.setText(list.get(2).getType());
-            windTv2.setText(list.get(2).getFengli());
-            weatherJudge(list.get(2).getType(),weatherImg2);
         }
 
         //System.out.println(getArguments().getSerializable("list"));
