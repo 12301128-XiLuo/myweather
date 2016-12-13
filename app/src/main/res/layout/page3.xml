@@ -9,12 +9,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center_horizontal"
-        android:paddingBottom="30dp">
+        android:paddingBottom="10dp">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="开始体验"
+            android:textSize="19sp"
+            android:background="@drawable/ready_button"
+            android:style="@style/ButtonText"
             android:id="@+id/button" />
     </LinearLayout>
 </RelativeLayout>
