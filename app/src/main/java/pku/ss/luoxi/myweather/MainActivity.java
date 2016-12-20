@@ -57,6 +57,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private static final int UPDATE_TODAY_WEATHER = 1;
     private static final int UPDATE_FUTURE_WEATHER = 2;
+    private static final int NO_WEATHER = 3;
     private ImageView mUpdateBtn,mLocationBtn,mShareBtn;
     private ImageView mCitySelect;
     private ProgressBar mTitleUpdateProgress;
@@ -85,7 +86,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     break;
                 case UPDATE_FUTURE_WEATHER:
                     //initAfterView((List<FutureWeather>) msg.obj);
+
                     updateFutureWeather((List<FutureWeather>) msg.obj);
+                    break;
+                case NO_WEATHER:
+                    Toast.makeText(MainActivity.this,"您选择的地点不存在！",Toast.LENGTH_LONG).show();
                     break;
                 default:
                     break;
@@ -139,6 +144,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         // 启动服务
         startService(new Intent(this,MyService.class));
+        //第一次更新数据
+        updateUI();
     }
 
     //sharedPreferences判断加初始化
@@ -420,6 +427,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private  void queryWeatherCode(String cityCode){
         final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey="+cityCode;
         final String futureAddress = "http://api.k780.com:88/?app=weather.future&weaid="+cityCode+"&appkey=10003&sign=b59bc3ef6191eb9f747dd4e83c99f2a4&format=xml"+cityCode;
+        final String cityCodeFinal = cityCode;
         Log.d("myWeather",address);
         new Thread(new Runnable() {
             @Override
@@ -432,7 +440,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     List<FutureWeather> list = new ArrayList<FutureWeather>();
                     //获取并解析今日天气以及未来天气
                     list = parseXML.parseFutureJSON(responseFutureStr);
-                    if(list != null){
+                    Log.d("list",list.toString());
+                    if(list.size()!=0){
                         Message msg = new Message();
                         msg.what = UPDATE_FUTURE_WEATHER;
                         msg.obj = list;
@@ -440,12 +449,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     }
                     todayWeather = parseXML.parseTodayXML(responseStr);
                     if(todayWeather != null){
-                        Log.d("myWeather",todayWeather.toString());
+                        if(todayWeather.getCity() != null){
+                            saveCityCode(cityCodeFinal);
+                            Message msg = new Message();
+                            msg.what = UPDATE_TODAY_WEATHER;
+                            msg.obj = todayWeather;
+                            mHandler.sendMessage(msg);
+                        }else{
+                            Message msg = new Message();
+                            msg.what = NO_WEATHER;
+                            mHandler.sendMessage(msg);
+                        }
 
-                        Message msg = new Message();
-                        msg.what = UPDATE_TODAY_WEATHER;
-                        msg.obj = todayWeather;
-                        mHandler.sendMessage(msg);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -454,6 +469,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }).start();
     }
 
+    //定位
     public class MyLocationListener implements BDLocationListener{
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -518,6 +534,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             cityName = location.getCity();
             String code = MyApplication.getInstance().getCityCodeByName(cityName);
             Toast.makeText(MainActivity.this,"当前地点："+cityName,Toast.LENGTH_LONG).show();
+            //存储地点
+            sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("main_city_code",code);
+            editor.commit();
             queryWeatherCode(code);
             mLocationClient.stop();
             //Log.i("BaiduLocationApiDem", sb.toString());
@@ -540,6 +561,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         option.setEnableSimulateGps(false);//可选，默认false，设置是否需要过滤gps仿真结果，默认需要
         mLocationClient.setLocOption(option);
     }
+
+    //存储cityCode
+    private void saveCityCode(String cityCode){
+        //存储地点
+        sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("main_city_code",cityCode);
+        editor.commit();
+    }
     //点击事件
     @Override
     public void onClick(View v) {
@@ -557,17 +587,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             //将刷新按钮设为不可见;
             mTitleUpdateProgress.setVisibility(View.VISIBLE);
             mUpdateBtn.setVisibility(View.INVISIBLE);
-            sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            String cityCode = sharedPreferences.getString("main_city_code",newCityCode);
-            Log.d("myWeather1",cityCode);
+            //更新数据
+            updateUI();
 
-            if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE) {
-                Log.d("myWeather","网络OK");
-                queryWeatherCode(cityCode);
-            }else {
-                Log.d("myWeather","网络挂了");
-                Toast.makeText(MainActivity.this,"网络挂了！",Toast.LENGTH_LONG).show();
-            }
         }
         if(v.getId() == R.id.title_location) {
             //统计点击定位按钮次数
@@ -580,15 +602,30 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             showShare();
         }
     }
+
+    private void updateUI() {
+        sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+        String cityCode = sharedPreferences.getString("main_city_code",newCityCode);
+        Log.d("myWeather1",cityCode);
+
+        if(NetUtil.getNetworkState(this) != NetUtil.NETWORN_NONE) {
+            Log.d("myWeather","网络OK");
+            queryWeatherCode(cityCode);
+        }else {
+            Log.d("myWeather","网络挂了");
+            Toast.makeText(MainActivity.this,"网络挂了！",Toast.LENGTH_LONG).show();
+        }
+    }
+
     //接收返回的数据
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 1 && resultCode == RESULT_OK) {
             newCityCode=data.getStringExtra("cityCode");
 
-            sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("main_city_code",newCityCode);
-            editor.commit();
+//            sharedPreferences = getSharedPreferences("config",MODE_PRIVATE);
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putString("main_city_code",newCityCode);
+//            editor.commit();
 
             Log.d("myWeather","选择的城市代码为"+newCityCode);
 

@@ -5,6 +5,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -132,21 +133,23 @@ public class ParseXML {
         List<FutureWeather> list = new ArrayList<FutureWeather>();
         try {
             JSONObject jsonObject = new JSONObject(jsondata);
-            //JSONObject weatherinfo = jsonObject.getJSONObject("weatherinfo");
-            //Log.d("jsonObject", jsonObject.toString());
-            JSONArray jsonArray = jsonObject.getJSONArray("result");
-            //Log.d("jsonArray", jsonArray.toString());
-            for (int i=1;i<jsonArray.length();i++)
-            {
-                futureWeather = new FutureWeather();
-                JSONObject jsonObjectSon= (JSONObject)jsonArray.opt(i);
-                //Log.d("jsonObjectSon", jsonObjectSon.getString("week"));
-                futureWeather.setDate(jsonObjectSon.getString("week"));
-                futureWeather.setWendu(jsonObjectSon.getString("temperature"));
-                futureWeather.setFengli(jsonObjectSon.getString("winp"));
-                futureWeather.setType(jsonObjectSon.getString("weather"));
-                list.add(futureWeather);
+            String successCode = jsonObject.getString("success");
+            Log.d("jsonArray", successCode);
+            if(successCode.equals("1")){
+                JSONArray jsonArray = jsonObject.getJSONArray("result");
+                for (int i=1;i<jsonArray.length();i++)
+                {
+                    futureWeather = new FutureWeather();
+                    JSONObject jsonObjectSon= (JSONObject)jsonArray.opt(i);
+                    //Log.d("jsonObjectSon", jsonObjectSon.getString("week"));
+                    futureWeather.setDate(jsonObjectSon.getString("week"));
+                    futureWeather.setWendu(jsonObjectSon.getString("temperature"));
+                    futureWeather.setFengli(jsonObjectSon.getString("winp"));
+                    futureWeather.setType(jsonObjectSon.getString("weather"));
+                    list.add(futureWeather);
+                }
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
